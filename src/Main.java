@@ -6,10 +6,11 @@ public class Main {
 
     private static int health;
     private static ArrayList<Item> inventory;
-    private static int money, defeated, visited, objects;
+    private static int money, defeated, visited, objects, robber;
     private static ArrayList<Room> rooms;
     private static Room room;
     private static boolean gameOn;
+    private static ArrayList<String> seen;
 
     public static void main(String[] args) {
         initialize();
@@ -18,15 +19,24 @@ public class Main {
         room = rooms.get(0);
         while (gameOn) {
             System.out.print("You are in the " + room.name + ".");
-            System.out.print("\nThings of interest:");
+            System.out.print("\nYour money: " + money + "\nThings of interest:");
             for (Item item : room.items) {
                 System.out.print("\n" + item.name);
+                if (!seen.contains(item.name)) {
+                    seen.add(item.name);
+                }
             }
             System.out.println("\nType 'c' for the possible commands.");
 
             String[] commands = {""};
 
             while (commands.length > 0 && !commands[0].contains("refresh") && gameOn) {
+                if (robber == room.getId()) {
+                    System.out.println("It's a robber! He stole your money!");
+                    money = 0;
+                    robber = -1;
+                }
+
                 commands = read.nextLine().toLowerCase().split(" ");
 
                 if (commands.length > 0 && !commands[0].contains("refresh")) {
@@ -54,7 +64,8 @@ public class Main {
         System.out.println("Stats:" +
                 "\nMoney collected:\t" + money +
                 "\nEnemies defeated:\t" + defeated +
-                "\nRooms visited:\t\t" + visited);
+                "\nRooms visited:\t\t" + visited +
+                "\nUnique objects:\t\t" + seen.size());
     }
 
     private static void processCommands(String[] commands) {
@@ -113,9 +124,12 @@ public class Main {
             }
             if (moved) {
                 visited++;
-                System.out.print("Things of interest:");
+                System.out.print("\nYour money: " + money + "\nThings of interest:");
                 for (Item item : room.items) {
                     System.out.print("\n" + item.name);
+                    if (!seen.contains(item.name)) {
+                        seen.add(item.name);
+                    }
                 }
                 System.out.println();
             }
@@ -164,6 +178,7 @@ public class Main {
             Item item = new Item("Claw");
             item.addAction("use", "You attacked with the claw!", "attack", 2);
             inventory.add(item);
+            seen.add("Claw");
             room.removeItem("Dead Scorpion");
         } else if (code.equals("money")) {
             money += value;
@@ -196,6 +211,7 @@ public class Main {
                 Item item = new Item("Key");
                 item.addAction("use", "You attempt to open something nearby", "key", 0);
                 inventory.add(item);
+                seen.add("Key");
             }
             if (!text.equals("")) {
                 System.out.println(text);
@@ -215,9 +231,11 @@ public class Main {
         defeated = 0;
         visited = 1;
         objects = 1;
+        seen = new ArrayList<>();
         inventory = new ArrayList<>();
         rooms = new ArrayList<>();
         Random r = new Random();
+        robber = r.nextInt(8) + 1;
         int alternateRoom = 7;
         if (r.nextInt(4) == 0) {
             alternateRoom = 8;
