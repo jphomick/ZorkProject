@@ -18,8 +18,9 @@ public class Main {
         room = rooms.get(0);
         while (gameOn) {
             System.out.print("You are in the " + room.name + ".");
+            System.out.print("\nThings of interest:");
             for (Item item : room.items) {
-                System.out.print("\nThere is a " + item.name);
+                System.out.print("\n" + item.name);
             }
             System.out.println("\nType 'c' for the possible commands.");
 
@@ -28,7 +29,7 @@ public class Main {
             while (commands.length > 0 && !commands[0].contains("refresh") && gameOn) {
                 commands = read.nextLine().toLowerCase().split(" ");
 
-                if (commands.length > 0) {
+                if (commands.length > 0 && !commands[0].contains("refresh")) {
                     if (commands[0].equals("c")) {
                         showCommands();
                     } else {
@@ -97,10 +98,13 @@ public class Main {
                 moved = true;
             } else if (commands[1].equals("south") && room.getId() == 1) {
                 gameOn = false;
+            } else {
+                System.out.println("You can't move that way!");
             }
             if (moved) {
+                System.out.print("Things of interest:");
                 for (Item item : room.items) {
-                    System.out.print("\nThere is a " + item.name);
+                    System.out.print("\n" + item.name);
                 }
                 System.out.println();
             }
@@ -133,7 +137,8 @@ public class Main {
         }
         Room room = new Room(1, "foyer", 2, 0, 0, 0);
         Item item = new Item("Dead Scorpion");
-        item.addAction("take", "You unlodged the claw of the dead scorpion!", "claw", 0);
+        item.addAction("take", "You unlodged the claw of the dead scorpion!\nYou !"
+                , "claw", 0);
         item.addAction("look", "You look at the scorpion. It looks scary.");
         room.addItem(item);
         rooms.add(room);
@@ -147,13 +152,9 @@ public class Main {
         room = new Room(3, "library", 5, 0, 2, 0);
         item = new Item("Spiders");
         room.addItem(item);
-        item = new Item("Spiders");
-        room.addItem(item);
         rooms.add(room);
         room = new Room(4, "kitchen", 7, 0, 0, 2);
-        item = new Item("Bat");
-        room.addItem(item);
-        item = new Item("Bat");
+        item = new Item("Bats");
         room.addItem(item);
         rooms.add(room);
         room = new Room(5, "dining room", 0, 3, 0, 0);
@@ -190,7 +191,7 @@ public class Main {
     }
 
     private static void showCommands() {
-        System.out.println("'move [t]' 'take [t]' 'look [t]' 'refresh'\n[t] indicates target required.");
+        System.out.println("'move [t]' 'take [t]' 'look [t]' 'use [t]' 'refresh'\n[t] indicates target required.");
     }
 
     private static Room getRoom(int id) {
@@ -232,6 +233,21 @@ public class Main {
             Item item = new Item("Empty Box");
             inventory.add(item);
             room.removeItem("Empty Box");
+        } else if (code.equals("attack")) {
+            String text = "";
+            if (room.removeItem("Walking Skeleton")) {
+                text = "You defeated a walking skeleton!";
+            }
+            if (room.removeItem("Spiders")) {
+                text = "You defeated the spiders!";
+            }
+            if (room.removeItem("Bats")) {
+                text = "You defeated the bats!";
+            }
+            gameOn = false;
+            if (!text.equals("")) {
+                System.out.println(text);
+            }
         }
     }
 }

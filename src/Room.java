@@ -36,14 +36,19 @@ public class Room {
         return null;
     }
 
-    public void removeItem(String name) {
+    public boolean removeItem(String name) {
         int idx = -1;
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).name.toLowerCase().equals(name.toLowerCase())) {
                 idx = i;
             }
         }
-        items.remove(idx);
+        if (idx != -1) {
+            items.remove(idx);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void addItem(Item it) {
